@@ -1,6 +1,13 @@
 import pyttsx3
 import datetime
 import speech_recognition as sr
+import wikipedia
+import smtplib
+import webbrowser as wb
+import os
+import pyautogui
+import psutil
+import pyjokes
 
 
 engine = pyttsx3.init()
@@ -53,6 +60,28 @@ def takeCommand():
             speak("Say that again please....")        
             return "None"        
         return query
+    
+def sendEmail(to, content):
+    server = smtplib.SMTP('smtp.gamil.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.login('dulanajanaanuraweera@gmail.com', '1234')
+    server.sendmail('dulanajanaanuraweera@gmail.com', to, content)
+    server.close()
+    
+def screenShot():
+    img = pyautogui.screenshot()
+    img.save("C:/Users/user/OneDrive/Pictures/Screenshots")
+
+def cpu():
+    usage = str(psutil.cpu_percent())
+    speak('CPU is at'+ usage)
+    battery = psutil.sensors_battery()
+    speak('Battery is at')
+    speak(battery.percent)
+
+def jokes():
+    speak(pyjokes.get_joke())
 
 if __name__ == "__main__":
     wishme()
@@ -61,11 +90,69 @@ if __name__ == "__main__":
         
         if 'time' in query:
             time()
+            
         elif 'date' in query:
             date()
+            
+        elif 'wikipedia' in query:
+            speak("Searching...")
+            query = query.replace("wikipedia", "")
+            result = wikipedia.summary(query, sentences=2)
+            print(result)
+            speak(result)   
+            
+        elif 'send email' in query:
+            try:
+                speak("What should I say?")
+                content = takeCommand()
+                to = "dnadeeshan516@gmail.com"
+                sendEmail(to, content)
+                speak("Email has been sent!")
+            except Exception as e:
+                print(e)
+                speak("Unable to send the email")
+                
+        elif 'search in chrome' in query:
+            speak("What should I search?")
+            chromepath = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+            search = takeCommand().lower()            
+            wb.get(chromepath).open_new_tab(search + ".com")
+            
+        elif 'logout' in query:
+            os.system("shutdown -l")
+        elif 'shutdown' in query:
+            os.system("shutdown /s /t 1")
+        elif 'restart' in query:
+            os.system("shutdown /r /t 1")
+            
+        elif 'play songs' in query:
+            songs_dir = "C:/Users/user/Music"
+            songs = os.listdir(songs_dir)
+            os.startfile(os.path.join(songs_dir, songs[0]))
+            
+        elif 'remember that' in query:
+            speak("What should I remember?")
+            data = takeCommand()
+            speak("You told me to remember that" + data)
+            remember = open('data.txt', 'w')
+            remember.write(data)
+            remember.close()
+            
+        elif 'do you know anything' in query:
+            remember =open('data.txt', 'r')
+            speak("You told me to remember that" + remember.read())
+            
+        elif 'screen shot' in query:
+            speak("Taking screenshot")
+            
+        elif 'cpu' in query:
+            cpu()
+            
+        elif 'joke' in query:
+            jokes()
+            
         elif 'offline' in  query:
             quit()
-
 
 
 
